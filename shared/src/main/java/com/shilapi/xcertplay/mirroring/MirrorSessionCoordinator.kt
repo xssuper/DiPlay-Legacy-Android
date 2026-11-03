@@ -66,6 +66,18 @@ class MirrorSessionCoordinator {
         }
     }
 
+    /**
+     * Drops any Android ownership (cable or network) and acknowledges the stop, so a later CarPlay
+     * attach is not blocked by stale ownership. Returns true when Android actually held the screen.
+     */
+    @Synchronized
+    fun forceAndroidStop(): Boolean {
+        val had = pendingAndroidDeviceId != null || activeAndroidDeviceId != null
+        pendingAndroidDeviceId?.let { androidStopped(it) }
+        activeAndroidDeviceId?.let { androidStopped(it) }
+        return had
+    }
+
     /** Clears the cable guard and releases Android ownership when the active phone is unplugged. */
     @Synchronized
     fun usbDetached(deviceId: Int): Boolean {

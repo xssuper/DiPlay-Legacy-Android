@@ -561,6 +561,8 @@ class CarPlayHostActivity : ComponentActivity() {
     private var externalActivityInProgress = false
     private var sink: AndroidMediaSink? = null
     private var controller: CarPlayController? = null
+    /** Enforces the one-owner rule: CarPlay and the Android receiver never run the screen together. */
+    private lateinit var mirrorRuntime: MirrorRuntime
     private val videoSurfaceOwner = CarPlayVideoSurfaceOwner<Surface>(
         detach = { surface ->
             sink?.clearSurface(SCREEN_TYPE_MAIN, surface)
@@ -843,6 +845,13 @@ class CarPlayHostActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        mirrorRuntime = MirrorRuntime(object : MirrorRuntime.Actions {
+            override fun stopCarPlay() = stopCarPlaySession()
+            override fun startAndroid(device: UsbDevice): Boolean =
+                com.shilapi.xcertplay.autoreceiver.DiAutoReceiver.start(this@CarPlayHostActivity, device)
+            override fun stopAndroid() =
+                com.shilapi.xcertplay.autoreceiver.DiAutoReceiver.stop(this@CarPlayHostActivity)
+        })
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         NavigationWidgetUpdater.attach(applicationContext)
         CarPlayCallKeys.install(applicationContext)
@@ -1165,7 +1174,14 @@ class CarPlayHostActivity : ComponentActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         when (mirrorAttachment(intent)) {
-            MirrorDecision.START_CARPLAY -> if (wirelessEnabled) {
+            MirrorDecision.START_CARPLAY -> {
+                // An Android session must release the screen before CarPlay can take it; the arbiter
+                // would otherwise refuse the CarPlay claim while Android still owns the device.
+                if (mirrorRuntime.androidActive) {
+                    appendLog("Android session released to make room for CarPlay")
+                    mirrorRuntime.stopAndroidOnly()
+                }
+                if (wirelessEnabled) {
                 if (menuOpen) cancelSettingsEdits()
                 AirPlayPersistence.saveWirelessEnabled(this, false)
                 wirelessEnabled = false
@@ -1176,6 +1192,7 @@ class CarPlayHostActivity : ComponentActivity() {
                 requestStartupPrerequisites()
             } else if (controller == null) {
                 requestStartupPrerequisites()
+            }
             }
             // An Android phone is driven through its own adbd: nothing is installed on it, and the
             // phone-side binaries (screenrecord, input) do the work.
@@ -1206,10 +1223,11 @@ class CarPlayHostActivity : ComponentActivity() {
         // has to be *off* the critical path: the transport is AOA, which any phone speaks once it is
         // plugged into a host, so there is nothing here for the driver to enable first.
         appendLog("Android phone attached; starting the merged Android Auto receiver over USB")
-        // The receiver from :autoreceiver owns the AOA switch and the session from here on. Its
-        // own attach Activity asks for the USB permission that AOA needs.
-        val started = com.shilapi.xcertplay.autoreceiver.DiAutoReceiver.start(this, device)
-        if (!started) appendLog("Android Auto receiver refused the start (a session is already running)")
+        // The receiver from :autoreceiver owns the AOA switch and the session from here on. The
+        // arbiter first yields the screen if CarPlay held it, so the two never run together.
+        if (!mirrorRuntime.onAndroidPhoneAttached(device)) {
+            appendLog("Android Auto receiver refused the start (a session is already running)")
+        }
     }
 
     /** The attached USB device, when this intent is an attach broadcast for one. */
@@ -5023,6 +5041,9 @@ class CarPlayHostActivity : ComponentActivity() {
             },
         )
         controller = next
+        // The CarPlay stack is live: record it with the arbiter so a later Android handoff knows to
+        // yield. No-op while an Android session holds the screen (the arbiter refuses the claim).
+        mirrorRuntime.onCarPlayStarted()
         // Issues #327/#350: on a video-only recovery attempt, re-ask the phone
         // for the screen (changeModes Take Screen); wireless sessions no-op
         // inside takeMainAudioAndScreen by design.
@@ -5764,6 +5785,23 @@ class CarPlayHostActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    /**
+     * Hands the screen to Android: tears the CarPlay stack down without scheduling a restart, and
+     * tells the arbiter CarPlay has left so the single-owner rule is freed for the Android session.
+     * Used only as [MirrorRuntime.Actions.stopCarPlay]; normal CarPlay restarts go through
+     * [restartCarPlay], which keeps ownership.
+     */
+    private fun stopCarPlaySession() {
+        val current = controller ?: return
+        CarPlayMediaKeys.detach(current)
+        CarPlayBackgroundSession.clear(current, keepOwner = true)
+        controller = null
+        sink = null
+        sessionDisplay = null
+        teardownExecutor.execute { current.close() }
+        mirrorRuntime.onCarPlayStopped()
     }
 
     private fun showDiPlayHome(page: String = "home") {

@@ -770,4 +770,10 @@
     <string name="aa_desktop_leave">Назад в DiPlay</string>
     <string name="aa_desktop_show_log">Журнал</string>
     <string name="aa_desktop_open">Открыть рабочий стол Android Auto</string>
+    <string name="settings_android_receiver_status">Приёмник Android Auto</string>
+    <string name="aa_receiver_state_off">Выкл.</string>
+    <string name="aa_receiver_state_idle">Ожидание</string>
+    <string name="aa_receiver_state_starting">Подключение</string>
+    <string name="aa_receiver_state_projecting">Трансляция</string>
+    <string name="aa_receiver_state_error">Ошибка</string>
 </resources>

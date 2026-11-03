@@ -770,4 +770,10 @@
     <string name="aa_desktop_leave">Volver a DiPlay</string>
     <string name="aa_desktop_show_log">Registro</string>
     <string name="aa_desktop_open">Abrir el escritorio de Android Auto</string>
+    <string name="settings_android_receiver_status">Receptor de Android Auto</string>
+    <string name="aa_receiver_state_off">Apagado</string>
+    <string name="aa_receiver_state_idle">Inactivo</string>
+    <string name="aa_receiver_state_starting">Conectando</string>
+    <string name="aa_receiver_state_projecting">Proyectando</string>
+    <string name="aa_receiver_state_error">Error</string>
 </resources>

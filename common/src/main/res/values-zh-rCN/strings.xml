@@ -851,4 +851,10 @@
     <string name="aa_desktop_leave">返回 DiPlay</string>
     <string name="aa_desktop_show_log">日志</string>
     <string name="aa_desktop_open">打开 Android Auto 桌面</string>
+    <string name="settings_android_receiver_status">Android Auto 接收器</string>
+    <string name="aa_receiver_state_off">已关闭</string>
+    <string name="aa_receiver_state_idle">待机</string>
+    <string name="aa_receiver_state_starting">连接中</string>
+    <string name="aa_receiver_state_projecting">投影中</string>
+    <string name="aa_receiver_state_error">错误</string>
 </resources>

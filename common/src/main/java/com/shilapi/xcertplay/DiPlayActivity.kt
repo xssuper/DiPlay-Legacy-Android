@@ -49,6 +49,8 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.shilapi.xcertplay.adb.LocalAdb
+import com.shilapi.xcertplay.autoreceiver.AutoReceiver
+import com.shilapi.xcertplay.autoreceiver.DiAutoReceiver
 import com.shilapi.xcertplay.bluetooth.BluetoothAddressResolver
 import com.shilapi.xcertplay.bluetooth.CarPlayBluetoothManager
 import com.shilapi.xcertplay.usbbt.UsbBtDongleDetector
@@ -165,6 +167,12 @@ class DiPlayActivity : ComponentActivity() {
     private var notificationTransport = true
     private var exportInProgress = false
     private var usbPermissionOperation: UsbPermissionSetup.Operation? = null
+
+    /** Live status of the merged Android Auto receiver, shown in the connection card. */
+    private var androidReceiverStatusView: TextView? = null
+    private val androidReceiverListener = AutoReceiver.Listener { state, detail ->
+        updateAndroidReceiverStatus(state, detail)
+    }
     private var usbPermissionDialog: AlertDialog? = null
     internal var usbPermissionOperationFactory: (Context) -> UsbPermissionSetup.Operation = {
         UsbPermissionSetup.Operation(it.applicationContext)
@@ -416,6 +424,7 @@ class DiPlayActivity : ComponentActivity() {
         // Results from the image picker and crop screens arrive before onResume.
         enforceInterfaceSize()
         CenterMapOverlay.onDiPlayScreenShown()
+        DiAutoReceiver.addListener(androidReceiverListener)
     }
 
     override fun onStop() {
@@ -423,6 +432,7 @@ class DiPlayActivity : ComponentActivity() {
         clusterSafeAreaDialog?.dismiss()
         startupHotspotCancelled = true
         super.onStop()
+        DiAutoReceiver.removeListener(androidReceiverListener)
         if (!isFinishing && !isChangingConfigurations) CenterMapOverlay.scheduleShow()
     }
 
@@ -1331,9 +1341,27 @@ class DiPlayActivity : ComponentActivity() {
                 getString(R.string.settings_android_mode_description),
                 DiPlayPreferences.androidModeEnabled(this),
             ) { enabled ->
+                if (!enabled) {
+                    // Turning the master switch off mid-session must release the receiver and free
+                    // the USB device, hotspot and ADB link it held so CarPlay can reclaim them.
+                    DiAutoReceiver.stop(this)
+                }
                 DiPlayPreferences.saveAndroidModeEnabled(this, enabled)
                 markReconnectNeeded()
             }
+            // Live status of the merged receiver: Idle / Connecting / Projecting / Error, or Off
+            // while the experimental switch above is disabled.
+            card.addView(label(getString(R.string.settings_android_receiver_status), 15, MUTED).apply {
+                setPadding(0, dp(14), 0, dp(4))
+            })
+            androidReceiverStatusView = TextView(this).apply {
+                textSize = 15f
+                setTextColor(MUTED)
+                setPadding(0, dp(2), 0, 0)
+                text = describeAndroidReceiverStatus(DiAutoReceiver.state(this@DiPlayActivity), null)
+            }
+            card.addView(androidReceiverStatusView)
+            updateAndroidReceiverStatus(DiAutoReceiver.state(this), null)
             // Which phone this head unit serves. Auto keeps today's behaviour: an iPhone starts
             // CarPlay as soon as it is plugged in.
             val phoneTypes = PhoneTypePreference.entries
@@ -3902,6 +3930,39 @@ class DiPlayActivity : ComponentActivity() {
     private fun markReconnectNeeded() {
         CarPlayBackgroundSession.snapshot()?.controller?.let(PendingReconnect::mark)
         refreshReconnectBar()
+    }
+
+    /**
+     * Human-readable status for the merged Android Auto receiver. While the experimental switch is
+     * off the receiver is dormant, so it reads as "Off" rather than the idle state it would report
+     * once a session had been torn down.
+     */
+    private fun describeAndroidReceiverStatus(state: AutoReceiver.State, detail: String?): String =
+        if (!DiPlayPreferences.androidModeEnabled(this)) {
+            getString(R.string.aa_receiver_state_off)
+        } else {
+            when (state) {
+                AutoReceiver.State.PROJECTING -> getString(R.string.aa_receiver_state_projecting)
+                AutoReceiver.State.STARTING -> getString(R.string.aa_receiver_state_starting)
+                AutoReceiver.State.ERROR ->
+                    getString(R.string.aa_receiver_state_error) + (detail?.let { " · $it" } ?: "")
+                else -> getString(R.string.aa_receiver_state_idle)
+            }
+        }
+
+    /** Updates the on-screen receiver status line; no-op until the connection card has built it. */
+    private fun updateAndroidReceiverStatus(state: AutoReceiver.State, detail: String?) {
+        val view = androidReceiverStatusView ?: return
+        view.text = describeAndroidReceiverStatus(state, detail)
+        view.setTextColor(
+            when {
+                !DiPlayPreferences.androidModeEnabled(this) -> MUTED
+                state == AutoReceiver.State.PROJECTING -> READY
+                state == AutoReceiver.State.STARTING -> WARNING
+                state == AutoReceiver.State.ERROR -> Color.rgb(255, 128, 128)
+                else -> MUTED
+            },
+        )
     }
 
     private fun refreshReconnectBar() {
