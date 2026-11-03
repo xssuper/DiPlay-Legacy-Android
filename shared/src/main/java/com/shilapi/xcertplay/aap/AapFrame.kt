@@ -59,6 +59,18 @@ object AapFrame {
      */
     const val MAX_MESSAGE = 1 shl 20
 
+    /**
+     * The largest frame this head unit accepts.
+     *
+     * The official phone never sends a frame over [MAX_PAYLOAD], but it does not have to: the
+     * size field is two bytes wide, and a phone that fragments less aggressively - AARE's 1280x720
+     * video keyframes run a few dozen bytes over the official cap - would otherwise end the
+     * session on its first keyframe. Receiving is not the same contract as sending: the car still
+     * never sends more than [MAX_PAYLOAD], because the 16 KiB receive buffer that [MAX_PAYLOAD]
+     * stays under is on the phone.
+     */
+    const val MAX_RECEIVED_FRAME = 0xFFFF
+
     fun isFirst(flags: Int) = flags and FLAG_FIRST != 0
     fun isLast(flags: Int) = flags and FLAG_LAST != 0
     fun isControl(flags: Int) = flags and FLAG_CONTROL != 0
@@ -217,8 +229,8 @@ class AapFrameReader(private val input: InputStream) {
         val flags = input.read()
         if (flags < 0) throw EOFException("AAP stream ended inside a frame header")
         val size = readShort()
-        if (size > AapFrame.MAX_PAYLOAD) {
-            throw IllegalStateException("AAP frame size $size exceeds ${AapFrame.MAX_PAYLOAD}")
+        if (size > AapFrame.MAX_RECEIVED_FRAME) {
+            throw IllegalStateException("AAP frame size $size exceeds ${AapFrame.MAX_RECEIVED_FRAME}")
         }
         var total = -1
         if (AapFrame.hasTotalSize(flags)) {

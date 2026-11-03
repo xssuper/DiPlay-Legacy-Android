@@ -160,14 +160,13 @@ class AapFrameTest {
     }
 
     @Test
-    fun anOversizedFrameSizeIsRejected() {
-        // 0xFFFF is above MAX_PAYLOAD; accepting it would allocate 64 KiB per bogus header.
-        val bogus = byteArrayOf(0, 0x03, 0xFF.toByte(), 0xFF.toByte())
-        try {
-            AapFrameReader(ByteArrayInputStream(bogus)).nextFrame()
-        } catch (expected: IllegalStateException) {
-            return
-        }
-        throw AssertionError("a frame larger than MAX_PAYLOAD must be refused")
+    fun aFrameAboveTheOfficialCapIsStillRead() {
+        // AARE's 1280x720 keyframes run a few dozen bytes over the official 16120-byte cap. The
+        // size field is two bytes wide, so the head unit reads them instead of ending the session
+        // on the first keyframe.
+        val payload = ByteArray(16149) { (it and 0xFF).toByte() }
+        val header = byteArrayOf(0, 0x03, (16149 shr 8).toByte(), (16149 and 0xFF).toByte())
+        val frame = AapFrameReader(ByteArrayInputStream(header + payload)).nextFrame()!!
+        assertArrayEquals(payload, frame.payload)
     }
 }
