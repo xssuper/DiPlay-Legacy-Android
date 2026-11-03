@@ -134,6 +134,9 @@ interface AutoReceiver {
 ## 5. 尚未覆盖（下一里程碑）
 
 - `Android 4.4–9` 上的 TLS/解码性能实测（M5 真机矩阵）
-- 接收器状态与 `MirrorSessionCoordinator` 的接线（`START_ANDROID_AUTO` 决策 → `AutoReceiver.start`）
-- DiPlay 设置页里"安卓模式"总开关（默认关闭）+ 7 语言字符串
-- APK 体积与方法数记录（并入后首次 assembleRelease 时记入本文）
+- DiPlay 设置的"手机类型"与接收器状态的 UI 联动（`STARTING/PROJECTING/ERROR` 显示）
+- M4 剩余部分：热点与 ADB 的单一拥有者接线（现在 `MirrorSessionCoordinator` 只守 CarPlay ↔ Android 互斥）
+- APK 体积：并入后 debug 版 22 MB → 30 MB（+8 MB）。这是未裁剪的上限值，正式版可再裁
+  （`resource shrinker` + 去掉未用的 `hud/`、`main/` 界面与 Navigation/Glide 依赖）
+- `DiagnosticExportDedupeTest` 在 Windows 本机失败 2 例（junction 不被 `canonicalPath` 解析），
+  与本模块无关，Linux CI 通过

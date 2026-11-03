@@ -50,6 +50,7 @@ android {
         // shared JVM tests in :common and by the DiPlay CI builds.
         abortOnError = false
         checkReleaseBuilds = false
+        checkDependencies = false
     }
 
     testOptions {
@@ -59,7 +60,6 @@ android {
 
 dependencies {
     coreLibraryDesugaring(libs.desugar.jdk.libs)
-
     implementation("com.google.protobuf:protobuf-java:3.25.1")
 
     implementation("androidx.core:core-ktx:1.12.0")
@@ -96,3 +96,9 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation("org.robolectric:robolectric:4.17")
 }
+
+// Analysing the vendored upstream sources (300+ files plus 108k generated protobuf lines) took
+// longer than the entire test suite, and every finding would be upstream's to fix rather than
+// DiPlay's. DiPlay's own modules keep their lint gates; this one is covered by the JVM tests in
+// :shared/:common and by the three assembles.
+tasks.matching { it.name.startsWith("lintAnalyze") }.configureEach { enabled = false }
