@@ -147,8 +147,17 @@ class MirrorArbiter(private val switchTimeoutMs: Long = DEFAULT_SWITCH_TIMEOUT_M
     private fun onStopped(mode: MirrorMode): List<MirrorArbiterEffect> {
         if (mode == MirrorMode.NONE) return emptyList()
         if (state == MirrorArbiterState.SWITCHING) {
-            if (target != mode) return emptyList()
-            reset()
+            if (target == mode) {
+                // The mode we were switching *to* stopped before it confirmed: the switch is dead.
+                reset()
+                return emptyList()
+            }
+            if (owner == mode) {
+                // Orderly teardown of the mode being replaced. It no longer owns the screen, USB or
+                // hotspot, but the switch to `target` is still in flight: clearing the whole state
+                // here would cancel the start that is already on its way.
+                owner = MirrorMode.NONE
+            }
             return emptyList()
         }
         if (owner != mode) return emptyList()

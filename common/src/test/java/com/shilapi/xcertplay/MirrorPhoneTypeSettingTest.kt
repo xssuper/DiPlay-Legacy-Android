@@ -53,21 +53,44 @@ class MirrorPhoneTypeSettingTest {
 
     @Test fun androidOnlyStopsAnIphoneFromStartingCarPlay() {
         DiPlayPreferences.savePhoneType(context, PhoneTypePreference.ANDROID_ONLY)
+        DiPlayPreferences.saveAndroidModeEnabled(context, true)
         assertEquals(MirrorDecision.IGNORE_BY_SETTING, MirrorUsbAttach.decision(context, device(IPHONE_VENDOR_ID)))
-        // The experimental receiver ships in this build, so the Android phone is handed to it
-        // instead of being recognised and left idle.
+        // With Android mode on, the merged receiver serves the phone instead of the attach being
+        // recognised and left idle.
         assertEquals(
             MirrorDecision.START_ANDROID_AUTO,
             MirrorUsbAttach.decision(context, device(ANDROID_VENDOR_ID)),
         )
     }
 
-    @Test fun automaticAlsoServesAnAndroidPhoneNowThatTheReceiverExists() {
+    @Test fun automaticAlsoServesAnAndroidPhoneWhenAndroidModeIsOn() {
         assertEquals(PhoneTypePreference.AUTO, DiPlayPreferences.phoneType(context))
+        DiPlayPreferences.saveAndroidModeEnabled(context, true)
         assertEquals(
             MirrorDecision.START_ANDROID_AUTO,
             MirrorUsbAttach.decision(context, device(ANDROID_VENDOR_ID)),
         )
+    }
+
+    @Test fun androidModeIsOffByDefaultSoAnAndroidPhoneIsLeftAlone() {
+        // The default install must behave exactly as it did before the receiver was merged.
+        assertFalse(DiPlayPreferences.androidModeEnabled(context))
+        assertEquals(PhoneTypePreference.AUTO, DiPlayPreferences.phoneType(context))
+        assertEquals(
+            MirrorDecision.ANDROID_RECEIVER_MISSING,
+            MirrorUsbAttach.decision(context, device(ANDROID_VENDOR_ID)),
+        )
+        // And an iPhone still starts CarPlay while Android mode is off.
+        assertEquals(MirrorDecision.START_CARPLAY, MirrorUsbAttach.decision(context, device(IPHONE_VENDOR_ID)))
+    }
+
+    @Test fun theAndroidModeSwitchSurvivesARestart() {
+        assertFalse(DiPlayPreferences.androidModeEnabled(context))
+        DiPlayPreferences.saveAndroidModeEnabled(context, true)
+        assertTrue(DiPlayPreferences.androidModeEnabled(context))
+        assertTrue(isAndroidModeEnabled(context))
+        DiPlayPreferences.saveAndroidModeEnabled(context, false)
+        assertFalse(isAndroidModeEnabled(context))
     }
 
     @Test fun anAccessoryIsNeverStartedWhateverTheSetting() {

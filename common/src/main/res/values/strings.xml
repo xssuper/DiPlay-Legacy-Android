@@ -846,7 +846,7 @@
     <string name="settings_phone_type_option_auto">Automatic</string>
     <string name="settings_phone_type_option_carplay">CarPlay only</string>
     <string name="settings_phone_type_option_android">Android only (experimental)</string>
-        <string name="settings_phone_type_hint">Automatic serves whichever phone is plugged in. Android mode is experimental: the receiver is in this build and can be started from this card, but a real phone still needs USB debugging on.</string>
+        <string name="settings_phone_type_hint">Automatic serves whichever phone is plugged in. Android phones need Android mode turned on; the receiver switches the phone into USB accessory mode, so no debugging setting is needed on the phone.</string>
     <string name="settings_phone_type_android_unavailable">Android mode is not part of this build yet.</string>
     <string name="settings_usb_debugging_required_title">Turn on USB debugging</string>
     <string name="settings_usb_debugging_required_message">Android mode reaches the phone through this head unit, so USB debugging has to be on. Turn it on in Developer options, then plug the phone in again.</string>

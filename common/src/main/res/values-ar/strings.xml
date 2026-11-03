@@ -732,7 +732,7 @@
     <string name="settings_phone_type_option_auto">تلقائي</string>
     <string name="settings_phone_type_option_carplay">CarPlay فقط</string>
     <string name="settings_phone_type_option_android">أندرويد فقط (تجريبي)</string>
-        <string name="settings_phone_type_hint">الوضع التلقائي يخدم الهاتف الموصول. الوضع الآلي تجريبي: المستقبل موجود في هذا الإصدار ويمكن تشغيله من هذه البطاقة، لكن الهاتف الحقيقي يحتاج إلى تفعيل تصحيح USB.</string>
+        <string name="settings_phone_type_hint">الوضع التلقائي يخدم الهاتف الموصول. تحتاج هواتف Android إلى تشغيل وضع Android؛ إذ يحوّل المستقبل الهاتف إلى وضع ملحق USB، فلا حاجة إلى أي إعداد تصحيح على الهاتف.</string>
     <string name="settings_phone_type_android_unavailable">وضع أندرويد ليس جزءا من هذا الإصدار بعد.</string>
     <string name="settings_usb_debugging_required_title">شغّل تصحيح USB</string>
     <string name="settings_usb_debugging_required_message">يصل وضع أندرويد إلى الهاتف عبر هذه الوحدة، لذلك يجب تشغيل تصحيح USB. شغّله من خيارات المطور ثم أعد توصيل الهاتف.</string>

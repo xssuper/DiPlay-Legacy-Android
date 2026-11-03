@@ -132,7 +132,10 @@ class AdbSessionTest {
     @Test(timeout = 30_000)
     fun writesAreChunkedAndAcknowledged() {
         val payload = ByteArray(200_000) { (it % 251).toByte() }
-        val received = ArrayList<Byte>()
+        // Appended by the scripted phone's thread, read by this one: a plain ArrayList used to throw
+        // ConcurrentModificationException whenever the last chunk landed while the assertion was
+        // copying. Guard both sides and wait for the script to finish before comparing.
+        val received = java.util.Collections.synchronizedList(ArrayList<Byte>())
         val phone = Phone()
         phone.reply { packet ->
             assertEquals(AdbPacket.CNXN, packet.command)
@@ -152,7 +155,13 @@ class AdbSessionTest {
         val stream = phone.session.open("exec:cat > /dev/null", 3_000)
         assertNotNull(stream)
         stream!!.write(payload)
-        assertArrayEquals(payload, received.toByteArray())
+        val deadline = System.currentTimeMillis() + 5_000
+        while (System.currentTimeMillis() < deadline) {
+            val done = synchronized(received) { received.size >= payload.size }
+            if (done) break
+            Thread.sleep(5)
+        }
+        assertArrayEquals(payload, synchronized(received) { received.toByteArray() })
         phone.close()
     }
 

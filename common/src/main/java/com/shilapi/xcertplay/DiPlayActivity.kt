@@ -1347,9 +1347,9 @@ class DiPlayActivity : ComponentActivity() {
             card.addView(label(getString(R.string.settings_phone_type_hint), 14, MUTED).apply {
                 setPadding(0, dp(4), 0, 0)
             })
-            // Android mode is experimental and, until the USB accessory path exists, started by hand.
-            // The address is the phone that will send the picture; on a workstation pair it is the
-            // adb-forwarded port of the sender emulator.
+            // Android mode is the merged DiAuto receiver (:autoreceiver). It starts itself when an
+            // Android phone is plugged in and this switch is on; the manual entries below stay for
+            // the adbd mirror and for DiPlay's own TCP receiver used in development.
             // Android mode with nothing installed on the phone: the head unit drives the phone's own
             // adbd. The address below is only for a phone whose adbd is on the network.
             if (Build.VERSION.SDK_INT >= 21) {

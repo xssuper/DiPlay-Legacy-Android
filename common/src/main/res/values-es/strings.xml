@@ -732,7 +732,7 @@
     <string name="settings_phone_type_option_auto">Automatico</string>
     <string name="settings_phone_type_option_carplay">Solo CarPlay</string>
     <string name="settings_phone_type_option_android">Solo Android (experimental)</string>
-        <string name="settings_phone_type_hint">El modo automático atiende al teléfono conectado. El modo Android es experimental: el receptor ya está en esta compilación y se inicia desde esta tarjeta, pero un teléfono real necesita la depuración USB activada.</string>
+        <string name="settings_phone_type_hint">El modo automático atiende al teléfono conectado. Los teléfonos Android necesitan el modo Android activado; el receptor cambia el teléfono a modo accesorio USB, así que no hace falta activar la depuración en el teléfono.</string>
     <string name="settings_phone_type_android_unavailable">El modo Android aun no forma parte de esta version.</string>
     <string name="settings_usb_debugging_required_title">Activa la depuracion USB</string>
     <string name="settings_usb_debugging_required_message">El modo Android llega al telefono a traves de esta unidad, asi que la depuracion USB debe estar activa. Activala en Opciones de desarrollador y vuelve a conectar el telefono.</string>

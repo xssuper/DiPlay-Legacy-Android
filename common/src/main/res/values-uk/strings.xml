@@ -744,7 +744,7 @@
     <string name="settings_phone_type_option_auto">Автоматично</string>
     <string name="settings_phone_type_option_carplay">Лише CarPlay</string>
     <string name="settings_phone_type_option_android">Лише Android (експериментально)</string>
-        <string name="settings_phone_type_hint">Автоматичний режим обслуговує підключений телефон. Android-режим експериментальний: приймач уже в цій збірці й запускається з цієї картки, але реальному телефону потрібне ввімкнене USB-налагодження.</string>
+        <string name="settings_phone_type_hint">Автоматичний режим обслуговує підключений телефон. Телефонам Android потрібен увімкнений режим Android: приймач переводить телефон у режим USB-аксесуара, тому налагодження на телефоні вмикати не потрібно.</string>
     <string name="settings_phone_type_android_unavailable">Режим Android поки не входить у цю збірку.</string>
     <string name="settings_usb_debugging_required_title">Увімкніть налагодження по USB</string>
     <string name="settings_usb_debugging_required_message">Режим Android звертається до телефона через цей головний пристрій, тому налагодження по USB має бути ввімкнене. Увімкніть його в параметрах розробника й підключіть телефон знову.</string>

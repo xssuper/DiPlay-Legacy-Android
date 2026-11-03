@@ -809,7 +809,7 @@
     <string name="settings_phone_type_option_auto">自动</string>
     <string name="settings_phone_type_option_carplay">仅 CarPlay</string>
     <string name="settings_phone_type_option_android">仅安卓（实验性）</string>
-        <string name="settings_phone_type_hint">自动模式会服务插入的那部手机。安卓模式为实验性：本版本已包含接收端，可直接从本卡片启动；真机连接仍需打开 USB 调试。</string>
+        <string name="settings_phone_type_hint">自动模式会服务插入的那部手机。安卓手机需要先打开安卓模式；接收端会把手机切到 USB 配件模式，手机上不需要开启调试。</string>
     <string name="settings_phone_type_android_unavailable">本版本尚未包含安卓模式。</string>
     <string name="settings_usb_debugging_required_title">开启 USB 调试</string>
     <string name="settings_usb_debugging_required_message">安卓模式需要通过车机访问手机，所以要开启 USB 调试。请在“开发者选项”中开启后重新插入手机。</string>
