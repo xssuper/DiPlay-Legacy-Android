@@ -667,6 +667,8 @@
     <string name="car_brand_icon_applied">Icono de %1$s aplicado</string>
     <string name="settings_car_bluetooth_mac_title">Dirección Bluetooth del coche</string>
     <string name="settings_car_bluetooth_mac_subtitle">Declara la MAC de Bluetooth nativa del coche al iPhone para el enrutamiento de audio adecuado. Reconecta para aplicar.</string>
+    <string name="settings_android_mode_title">Modo Android (experimental)</string>
+    <string name="settings_android_mode_description">Proyecta un teléfono Android conectado a esta unidad. Desactivado por defecto; CarPlay funciona igual que antes mientras esté desactivado. Se aplica en la próxima conexión.</string>
     <string name="settings_car_bluetooth_mac_auto">Automático (%1$s)</string>
     <string name="settings_car_bluetooth_mac_not_detected">No detectado</string>
     <string name="settings_car_bluetooth_mac_dialog_title">MAC de Bluetooth del coche</string>

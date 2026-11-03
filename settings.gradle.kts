@@ -25,6 +25,8 @@ dependencyResolutionManagement {
 rootProject.name = "xcertplay"
 include(":common")
 include(":mobile")
+// The DiAuto Android Auto receiver, merged as a library (AGPL-3.0). See docs/AA_MERGE_M0.md.
+include(":autoreceiver")
 // include(":automotive")
 include(":shared")
 include(":maphost")

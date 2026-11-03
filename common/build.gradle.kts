@@ -29,6 +29,9 @@ android {
 dependencies {
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     api(project(":shared"))
+    // The merged Android Auto receiver. :common decides *whether* to start it (phone type +
+    // Android-mode switch) and :mobile owns the process it runs in.
+    implementation(project(":autoreceiver"))
     implementation(libs.androidx.activity)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)

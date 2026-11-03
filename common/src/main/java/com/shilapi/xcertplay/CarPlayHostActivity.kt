@@ -1205,8 +1205,11 @@ class CarPlayHostActivity : ComponentActivity() {
         // An Android phone is served over Android Auto, not over its adbd. That means USB debugging
         // has to be *off* the critical path: the transport is AOA, which any phone speaks once it is
         // plugged into a host, so there is nothing here for the driver to enable first.
-        appendLog("Android phone attached; starting Android Auto over USB")
-        startActivity(AndroidAutoActivity.intentForUsb(this, device.deviceId))
+        appendLog("Android phone attached; starting the merged Android Auto receiver over USB")
+        // The receiver from :autoreceiver owns the AOA switch and the session from here on. Its
+        // own attach Activity asks for the USB permission that AOA needs.
+        val started = com.shilapi.xcertplay.autoreceiver.DiAutoReceiver.start(this, device)
+        if (!started) appendLog("Android Auto receiver refused the start (a session is already running)")
     }
 
     /** The attached USB device, when this intent is an attach broadcast for one. */

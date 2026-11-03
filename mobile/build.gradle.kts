@@ -94,6 +94,9 @@ dependencies {
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(project(":common"))
     implementation(project(":shared"))
+    // The merged Android Auto receiver. DiPlayApplication extends its App class, so this has to
+    // be on the app's own classpath rather than only inside :common.
+    implementation(project(":autoreceiver"))
     implementation("androidx.multidex:multidex:2.0.1")
     androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

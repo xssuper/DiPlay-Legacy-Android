@@ -730,6 +730,8 @@
     <string name="car_brand_icon_applied">已套用 %1$s 車標</string>
     <string name="settings_car_bluetooth_mac_title">車機藍牙位址</string>
     <string name="settings_car_bluetooth_mac_subtitle">向 iPhone 宣告車機真實藍牙 MAC 位址以正常路由音訊。重新連線後生效。</string>
+    <string name="settings_android_mode_title">安卓模式（實驗性）</string>
+    <string name="settings_android_mode_description">為插在本車機上的安卓手機投影。預設關閉，關閉時 CarPlay 與現在完全一致。下次連線時生效。</string>
     <string name="settings_car_bluetooth_mac_auto">自動探測 (%1$s)</string>
     <string name="settings_car_bluetooth_mac_not_detected">未檢測到</string>
     <string name="settings_car_bluetooth_mac_dialog_title">車機藍牙 MAC 位址</string>

@@ -189,4 +189,20 @@ internal object DiPlayPreferences {
     fun savePhoneType(context: Context, type: PhoneTypePreference) {
         prefs(context).edit().putString("phone_type", type.key).apply()
     }
+
+    /**
+     * Master switch for Android mode. Off by default (experimental): while it is off nothing in
+     * the merged receiver initialises and CarPlay behaves exactly as before.
+     */
+    fun androidModeEnabled(context: Context) = prefs(context).getBoolean("android_mode_enabled", false)
+    fun saveAndroidModeEnabled(context: Context, value: Boolean) {
+        prefs(context).edit().putBoolean("android_mode_enabled", value).apply()
+    }
 }
+
+/**
+ * [DiPlayPreferences] is internal to :common, but the process itself (`DiPlayApplication`, in
+ * :mobile) has to read the Android-mode switch before `Application.onCreate` so the merged
+ * receiver can stay dormant. This is the one public entry point it needs.
+ */
+fun isAndroidModeEnabled(context: Context): Boolean = DiPlayPreferences.androidModeEnabled(context)

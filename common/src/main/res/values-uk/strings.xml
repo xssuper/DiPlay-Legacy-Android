@@ -679,6 +679,8 @@
     <string name="car_brand_icon_applied">Застосовано логотип %1$s</string>
     <string name="settings_car_bluetooth_mac_title">Bluetooth-адреса автомобіля</string>
     <string name="settings_car_bluetooth_mac_subtitle">Повідомляє власний MAC-адрес Bluetooth автомобіля iPhone для правильної маршрутизації звуку. Перепідключіть для застосування.</string>
+    <string name="settings_android_mode_title">Режим Android (експериментально)</string>
+    <string name="settings_android_mode_description">Показує телефон Android, підключений до цього головного пристрою. Типово вимкнено; CarPlay працює як раніше, поки режим вимкнено. Застосовується під час наступного підключення.</string>
     <string name="settings_car_bluetooth_mac_auto">Авто (%1$s)</string>
     <string name="settings_car_bluetooth_mac_not_detected">Не виявлено</string>
     <string name="settings_car_bluetooth_mac_dialog_title">MAC-адреса Bluetooth автомобіля</string>

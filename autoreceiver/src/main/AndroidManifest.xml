@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Library manifest for the merged DiAuto receiver.
+
+  Differences from DiAuto's own app manifest, all deliberate:
+    * No <application> attributes. DiPlay owns android:name, icon, label, theme and backup
+      policy; a library that also declares them fails the manifest merge.
+    * No launcher intent-filter. The merged receiver is opened by DiPlay, never from the
+      app drawer.
+    * UsbAttachedActivity keeps its class but not its USB_DEVICE_ATTACHED intent-filter:
+      DiPlay's own attach handling decides whether Android Auto starts (the driver may have
+      chosen "CarPlay only", and usb_device_filter.xml in DiPlay only matches an iPhone).
+    * Provider authorities are namespaced under .autoreceiver so they cannot collide with
+      DiPlay's own FileProvider.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-feature
+        android:name="android.hardware.usb.host"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.screen.landscape"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.wifi"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.location"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.location.gps"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.location.network"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.microphone"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.bluetooth"
+        android:required="false" />
+
+    <permission
+        android:name="com.shihab.diplay.autoreceiver.permission.NAVIGATION_UPDATE"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission
+        android:name="android.permission.NEARBY_WIFI_DEVICES"
+        android:usesPermissionFlags="neverForLocation"
+        tools:targetApi="33" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_CONNECT"
+        tools:targetApi="31" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation"
+        tools:targetApi="31" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_ADVERTISE"
+        tools:targetApi="31" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission
+        android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE"
+        tools:targetApi="34" />
+    <uses-permission
+        android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
+        tools:targetApi="34" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+
+    <queries>
+        <package android:name="com.byd.clusterdebug" />
+        <package android:name="com.byd.amapservice" />
+        <package android:name="com.example.amapservice" />
+        <package android:name="com.ts.car.someip.service" />
+        <package android:name="com.google.android.projection.gearhead" />
+    </queries>
+
+    <application>
+        <activity
+            android:name=".aap.AapProjectionActivity"
+            android:configChanges="uiMode|orientation|screenSize|screenLayout|smallestScreenSize"
+            android:exported="false"
+            android:hardwareAccelerated="true"
+            android:launchMode="singleTask"
+            android:resizeableActivity="true"
+            android:supportsPictureInPicture="true"
+            android:theme="@style/AppTheme" />
+
+        <activity
+            android:name=".app.UsbAttachedActivity"
+            android:directBootAware="true"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:theme="@style/AppTheme.Translucent" />
+
+        <!-- Reachable for DiPlay's own screens and for deep links; no launcher entry. -->
+        <activity
+            android:name=".main.MainActivity"
+            android:configChanges="keyboardHidden|uiMode"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:theme="@style/SplashTheme" />
+
+        <activity
+            android:name=".main.SettingsActivity"
+            android:exported="false"
+            android:label="@string/settings"
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+
+        <activity
+            android:name=".main.OnboardingActivity"
+            android:exported="false"
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustResize" />
+
+        <service
+            android:name=".aap.AapService"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice|mediaPlayback"
+            android:stopWithTask="false">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </service>
+
+        <service android:name=".location.GpsLocationService" />
+
+        <!-- Upstream "github" flavour: keeps the phone's VPN slot from being taken over by the
+             wireless helper. Declared here because the merge has no product flavours. -->
+        <service
+            android:name=".aap.DummyVpnService"
+            android:exported="false"
+            android:permission="android.permission.BIND_VPN_SERVICE">
+            <intent-filter>
+                <action android:name="android.net.VpnService" />
+            </intent-filter>
+        </service>
+
+        <receiver
+            android:name="androidx.media.session.MediaButtonReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".app.RemoteControlReceiver"
+            android:exported="true">
+            <intent-filter android:priority="1000">
+                <action android:name="com.android.music.musicservicecommand" />
+                <action android:name="com.android.music.playstatechanged" />
+                <action android:name="com.android.music.metachanged" />
+                <action android:name="com.android.music.playbackcomplete" />
+                <action android:name="com.android.music.queuechanged" />
+                <action android:name="com.syu.ms.action.external_command" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".connection.CarKeyReceiver"
+            android:exported="true">
+            <intent-filter android:priority="1000">
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+                <action android:name="hy.intent.action.MEDIA_BUTTON" />
+                <action android:name="com.nwd.action.ACTION_KEY_VALUE" />
+                <action android:name="com.microntek.irkeyUp" />
+                <action android:name="com.microntek.irkeyDown" />
+                <action android:name="com.winca.service.Setting.KEY_ACTION" />
+                <action android:name="android.intent.action.C3_HARDKEY" />
+                <action android:name="IKeyClick.KEY_CLICK" />
+                <action android:name="com.eryanet.music.prev" />
+                <action android:name="com.eryanet.music.next" />
+                <action android:name="com.eryanet.media.playorpause" />
+                <action android:name="com.eryanet.media.play" />
+                <action android:name="com.eryanet.media.pause" />
+                <action android:name="com.bz.action.phone.pickup" />
+                <action android:name="com.bz.action.phone.hangup" />
+                <action android:name="com.tencent.qqmusiccar.action.MEDIA_BUTTON_INNER_ONKEY" />
+                <action android:name="cn.kuwo.kwmusicauto.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Boot and accessory wake-ups stay inert: DiPlay only starts Android Auto when the
+             driver has enabled Android mode, so these receivers re-check that setting. -->
+        <receiver
+            android:name=".app.BootCompleteReceiver"
+            android:directBootAware="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+                <action android:name="android.intent.action.USER_UNLOCKED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.mediatek.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.mediatek.intent.action.BOOT_IPO" />
+                <action android:name="com.fyt.boot.ACCON" />
+                <action android:name="com.glsx.boot.ACCON" />
+                <action android:name="android.intent.action.ACTION_MT_COMMAND_SLEEP_OUT" />
+                <action android:name="com.cayboy.action.ACC_ON" />
+                <action android:name="com.carboy.action.ACC_ON" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".app.AutoStartReceiver"
+            android:directBootAware="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.bluetooth.device.action.ACL_CONNECTED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".app.WifiAutoStartReceiver"
+            android:directBootAware="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.net.wifi.STATE_CHANGE" />
+            </intent-filter>
+        </receiver>
+
+        <activity
+            android:name=".main.AutomationActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="com.andrerinas.openheadunit.ACTION_SET_NIGHT_MODE" />
+                <action android:name="com.andrerinas.openheadunit.ACTION_CONNECT" />
+                <action android:name="com.andrerinas.openheadunit.ACTION_DISCONNECT" />
+                <action android:name="com.andrerinas.openheadunit.ACTION_START_SELF_MODE" />
+                <action android:name="com.andrerinas.openheadunit.ACTION_STOP_SERVICE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.shihab.diplay.autoreceiver.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
+    </application>
+</manifest>

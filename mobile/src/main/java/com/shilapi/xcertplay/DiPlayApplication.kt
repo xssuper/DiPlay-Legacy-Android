@@ -2,18 +2,27 @@ package com.shilapi.xcertplay
 
 import android.content.Context
 import android.os.Build
+import com.andrerinas.openheadunit.App
 import com.shilapi.xcertplay.compat.realSdkInt
 import android.util.Log
-import androidx.multidex.MultiDexApplication
 import com.shilapi.xcertplay.util.safeStackTrace
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class DiPlayApplication : MultiDexApplication() {
+/**
+ * DiPlay's process, with the merged DiAuto receiver underneath.
+ *
+ * [com.andrerinas.openheadunit.App] is DiAuto's dependency-injection root (`App.provide`). DiPlay
+ * takes it over as the base class so the merged receiver keeps its single root, and tells it the
+ * driver's Android-mode switch here, before `super.onCreate()` runs: while the switch is off the
+ * receiver's own initialisation is skipped and CarPlay behaviour is unchanged.
+ */
+class DiPlayApplication : App() {
 
     override fun onCreate() {
+        androidModeEnabled = isAndroidModeEnabled(this)
         super.onCreate()
         setupCrashHandler()
         // Session log output switch (issue #186): loaded once per process; toggling the

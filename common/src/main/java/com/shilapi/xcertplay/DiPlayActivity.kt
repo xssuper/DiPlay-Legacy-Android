@@ -1323,6 +1323,17 @@ class DiPlayActivity : ComponentActivity() {
                 matchButton(12, 60),
             )
             card.addView(label(getString(R.string.settings_car_bluetooth_mac_subtitle), 14, MUTED).apply { setPadding(0, dp(4), 0, 0) })
+            // Android mode is the merged DiAuto receiver. It stays dormant until this switch is
+            // on: with it off nothing from the receiver initialises and CarPlay behaves as before.
+            toggle(
+                card,
+                getString(R.string.settings_android_mode_title),
+                getString(R.string.settings_android_mode_description),
+                DiPlayPreferences.androidModeEnabled(this),
+            ) { enabled ->
+                DiPlayPreferences.saveAndroidModeEnabled(this, enabled)
+                markReconnectNeeded()
+            }
             // Which phone this head unit serves. Auto keeps today's behaviour: an iPhone starts
             // CarPlay as soon as it is plugged in.
             val phoneTypes = PhoneTypePreference.entries

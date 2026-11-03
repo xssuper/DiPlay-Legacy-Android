@@ -17,12 +17,11 @@ import com.shilapi.xcertplay.mirroring.UsbInterfaceIdentity
  */
 internal object MirrorUsbAttach {
     /**
-     * True since the Android Auto receiver landed in [com.shilapi.xcertplay.AapProjectionActivity]:
-     * the selector may now hand an Android phone to a real session instead of reporting that nothing
-     * can serve it. The USB accessory handshake still needs real hardware to exercise, so on a
-     * workstation the receiver is verified over TCP against the sender in `samples/aapphone`.
+     * True only while the driver has turned Android mode on. Off (the default) the selector keeps
+     * reporting [MirrorDecision.ANDROID_RECEIVER_MISSING], so an Android phone is ignored exactly
+     * as it was before the DiAuto receiver was merged.
      */
-    const val ANDROID_RECEIVER_AVAILABLE = true
+    fun androidReceiverAvailable(context: Context): Boolean = DiPlayPreferences.androidModeEnabled(context)
 
     fun identity(device: UsbDevice): UsbDeviceIdentity = UsbDeviceIdentity(
         vendorId = device.vendorId,
@@ -40,6 +39,6 @@ internal object MirrorUsbAttach {
     fun decision(context: Context, device: UsbDevice): MirrorDecision = MirrorTransportSelector.decide(
         kind = PhoneClassifier.classify(identity(device)),
         preference = DiPlayPreferences.phoneType(context),
-        androidReceiverAvailable = ANDROID_RECEIVER_AVAILABLE,
+        androidReceiverAvailable = androidReceiverAvailable(context),
     )
 }

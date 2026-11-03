@@ -10,6 +10,26 @@ Upstream credits [LIVI](https://github.com/f-io/LIVI) and [Showcase](https://git
 
 `common/src/main/java/com/shilapi/xcertplay/DiPlayActivity.kt` adapts the palette, visual arrangement and interface copy of the [DiAuto project](https://github.com/shihabal3amri/DiAuto). DiAuto's source is licensed under AGPL version 3. The UI file is marked AGPL-3.0-only; its license text is included in `docs/licenses/DiAuto-AGPL-3.0.txt`.
 
+## Merged Android Auto receiver (`:autoreceiver`)
+
+`autoreceiver/` is DiAuto's Android Auto receiver, merged into DiPlay as a library module so one
+app serves both an iPhone (CarPlay) and an Android phone (Android Auto).
+
+- Upstream: <https://github.com/shihabal3amri/DiAuto>, merged at commit
+  `f3046721814bff289a78e58f597b45d895efbb95` (0.3.12).
+- Licence: AGPL-3.0. Every imported file keeps its original copyright and licence header.
+  `docs/licenses/DiAuto-LICENSE-AGPL-3.0.txt` holds the upstream licence text.
+- DiAuto is itself a fork of [Open Headunit](https://github.com/michaelreid/OpenHeadunit), so
+  Michael Reid's attribution is retained verbatim in
+  `docs/licenses/COPYRIGHT_MICHAEL_REID_GPLv3AFFERO.txt`.
+- Local changes relative to upstream are listed in `docs/AA_MERGE_M0.md`: library packaging,
+  `minSdk 17`, no C++/NDK artifacts, no `play-services-nearby` (`NearbyManager` is a stand-in),
+  namespaced provider authorities, and a dormant-by-default `androidModeEnabled` gate in `App`.
+- Complete corresponding source is this public repository; the About screen names the upstream
+  project.
+- "Android Auto" is a trademark of Google LLC. DiPlay is an independent project and is not
+  endorsed by Google, Apple or BYD.
+
 ## CarPlay icon
 
 The unmodified icon was obtained from Apple's developer site at:
